@@ -1,26 +1,27 @@
 from typing import List
+import math
 
 class Solution:
-  def binarySearch(self, nums: List[int], target: int) -> int:
-    l, r = 0, len(nums) - 1
-
+  def minEatingSpeed(self, piles: List[int], h: int) -> int:
+    l, r = 1, max(piles)
+    res = r
+    
     while l <= r:
-      # find mid value
-      # m = (l + r) // 2
-      m = l + ((r - l) // 2) # optimitsed for out of bound exception
-      if nums[m] < target:
-        l = m + 1
-      elif nums[m] > target:
-        r = m - 1
+      k = (l + r) // 2
+      hours = 0
+      for p in piles:
+        hours += math.ceil(p / k)
+
+      if hours <= h:
+        res = min(res, k)
+        r = k - 1
       else:
-        return m
+        l = k + 1
 
-    return -1
-
+    return res
 
 if __name__ == "__main__":
-  nums = [-1,0,3,5,9,12]
-  target = 9
-
   s = Solution()
-  print(s.binarySearch(nums, target))
+  piles = [3, 6, 7, 11]
+  h = 8
+  print(s.minEatingSpeed(piles, h))
