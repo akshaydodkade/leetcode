@@ -1,27 +1,51 @@
-from typing import List
+from collections import defaultdict, Counter
 
 class Solution:
-  def maxDistance(self, colors: List[int]) -> int:
-    n = len(colors)
+  def minimumHammingDistance(self, source, target, allowedSwaps):
+    n = len(source)
+    # DSU
+    parent = list(range(n))
     
-    ans = 0
+    def find(x):
+      if parent[x] != x:
+        parent[x] = find(parent[x])
+      return parent[x]
     
-    # Compare with first element
-    for j in range(n - 1, -1, -1):
-      if colors[j] != colors[0]:
-        ans = max(ans, j)
-        break
+    def union(x, y):
+      px, py = find(x), find(y)
+      if px != py:
+        parent[py] = px
     
-    # Compare with last element
+    # Step 1: Build components
+    for a, b in allowedSwaps:
+      union(a, b)
+    
+    # Step 2: Group indices
+    groups = defaultdict(list)
     for i in range(n):
-      if colors[i] != colors[n - 1]:
-        ans = max(ans, n - 1 - i)
-        break
+      groups[find(i)].append(i)
     
-    return ans
+    # Step 3: Count mismatches
+    hamming = 0
+    
+    for indices in groups.values():
+      freq = Counter()
+      
+      # count source values
+      for i in indices:
+        freq[source[i]] += 1
+      
+      # match target values
+      for i in indices:
+        if freq[target[i]] > 0:
+          freq[target[i]] -= 1
+        else:
+          hamming += 1
+    
+    return hamming
 
 
 if __name__ == '__main__':
   s = Solution()
-  colors = [1,8,3,8,3]
-  print(s.maxDistance(colors))
+  source = [1,2,3,4], target = [2,1,4,5], allowedSwaps = [[0,1],[2,3]]
+  print(s.minimumHammingDistance(source, target, allowedSwaps))
